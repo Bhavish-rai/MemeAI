@@ -19,7 +19,6 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # -----------------------------------
 # 3. Create a rich description
-#    for every meme
 # -----------------------------------
 
 data["description"] = (
@@ -42,14 +41,14 @@ meme_embeddings = model.encode(
 
 
 # -----------------------------------
-# 5. User query
+# 5. Get query from user
 # -----------------------------------
 
-query = input("Enter what you want a meme about: ")
+query = input("\nEnter what you want a meme about: ")
 
 
 # -----------------------------------
-# 6. Convert user query into embedding
+# 6. Convert query into embedding
 # -----------------------------------
 
 query_embedding = model.encode([query])
@@ -66,7 +65,7 @@ similarities = cosine_similarity(
 
 
 # -----------------------------------
-# 8. Add similarity score
+# 8. Add similarity scores
 # -----------------------------------
 
 data["similarity"] = similarities
@@ -83,20 +82,44 @@ results = data.sort_values(
 
 
 # -----------------------------------
-# 10. Display top 5 memes
+# 10. Apply similarity threshold
 # -----------------------------------
 
-print("\nUser Query:")
-print(query)
+THRESHOLD = 0.40
 
-print("\nTop Matching Memes:\n")
+relevant_results = results[
+    results["similarity"] >= THRESHOLD
+]
 
-for _, row in results.head(5).iterrows():
 
-    print(f"Movie: {row['movie']}")
-    print(f"Character: {row['character']}")
-    print(f"Emotion: {row['emotion']}")
-    print(f"Caption: {row['caption']}")
-    print(f"Similarity: {row['similarity']:.2f}")
+# -----------------------------------
+# 11. Display results
+# -----------------------------------
 
-    print("-" * 40)
+print("\n" + "=" * 50)
+print("                 🎭 MEME AI")
+print("=" * 50)
+
+print(f"\nQuery: {query}")
+
+if relevant_results.empty:
+
+    print("\n😕 No highly relevant meme found.")
+    print("Try describing your situation differently.")
+
+else:
+
+    print("\n🔥 Related Memes:\n")
+
+    for index, (_, row) in enumerate(
+        relevant_results.head(5).iterrows(),
+        start=1
+    ):
+
+        print(f"{index}. Movie: {row['movie']}")
+        print(f"   Character: {row['character']}")
+        print(f"   Emotion: {row['emotion']}")
+        print(f"   Caption: {row['caption']}")
+        print(f"   Similarity: {row['similarity']:.2f}")
+
+        print("-" * 50)
