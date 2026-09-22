@@ -4,10 +4,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 # -----------------------------------
-# 1. Load the dataset
+# 1. Load the real meme dataset
 # -----------------------------------
 
-data = pd.read_csv("dataset/memes.csv")
+data = pd.read_csv("dataset/memes_real.csv")
 
 
 # -----------------------------------
@@ -18,25 +18,22 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 # -----------------------------------
-# 3. Create a rich description
+# 3. Get meme captions
 # -----------------------------------
 
-data["description"] = (
-    "Caption: " + data["caption"] +
-    ". Tags: " + data["tags"] +
-    ". Emotion: " + data["emotion"] +
-    ". Movie: " + data["movie"] +
-    ". Character: " + data["character"]
-)
+captions = data["caption"].tolist()
 
 
 # -----------------------------------
-# 4. Convert meme descriptions
+# 4. Convert all meme captions
 #    into embeddings
 # -----------------------------------
 
+print("\nCreating meme embeddings...")
+
 meme_embeddings = model.encode(
-    data["description"].tolist()
+    captions,
+    show_progress_bar=True
 )
 
 
@@ -82,44 +79,25 @@ results = data.sort_values(
 
 
 # -----------------------------------
-# 10. Apply similarity threshold
+# 10. Display top results
 # -----------------------------------
 
-THRESHOLD = 0.40
-
-relevant_results = results[
-    results["similarity"] >= THRESHOLD
-]
-
-
-# -----------------------------------
-# 11. Display results
-# -----------------------------------
-
-print("\n" + "=" * 50)
-print("                 🎭 MEME AI")
-print("=" * 50)
+print("\n" + "=" * 60)
+print("                    MEME AI")
+print("=" * 60)
 
 print(f"\nQuery: {query}")
 
-if relevant_results.empty:
+print("\nTop Matching Memes:\n")
 
-    print("\n😕 No highly relevant meme found.")
-    print("Try describing your situation differently.")
+for index, (_, row) in enumerate(
+    results.head(5).iterrows(),
+    start=1
+):
 
-else:
+    print(f"{index}. Image: {row['image']}")
+    print(f"   Caption: {row['caption']}")
+    print(f"   Sentiment: {row['sentiment']}")
+    print(f"   Similarity: {row['similarity']:.3f}")
 
-    print("\n🔥 Related Memes:\n")
-
-    for index, (_, row) in enumerate(
-        relevant_results.head(5).iterrows(),
-        start=1
-    ):
-
-        print(f"{index}. Movie: {row['movie']}")
-        print(f"   Character: {row['character']}")
-        print(f"   Emotion: {row['emotion']}")
-        print(f"   Caption: {row['caption']}")
-        print(f"   Similarity: {row['similarity']:.2f}")
-
-        print("-" * 50)
+    print("-" * 60)

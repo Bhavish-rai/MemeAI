@@ -1,4 +1,18 @@
-# Python virtual environment
+# Meme dataset images
+images/
+
+# Generated/processed ML files
+*.npy
+*.npz
+*.pkl
+
+# Model files
+models/
+*.pt
+*.pth
+*.onnx
+
+# Python environment
 venv/
 .venv/
 
@@ -6,10 +20,7 @@ venv/
 __pycache__/
 *.py[cod]
 
-# Jupyter Notebook
-.ipynb_checkpoints/
-
-# Environment variables / secrets
+# Environment variables
 .env
 .env.*
 
@@ -21,16 +32,5 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# ML / model files
-models/
-*.pt
-*.pth
-*.onnx
-*.bin
-
 # Logs
 *.log
-
-# Temporary files
-*.tmp
-*.temp
