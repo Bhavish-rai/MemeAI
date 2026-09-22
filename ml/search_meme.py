@@ -1,40 +1,45 @@
 import pandas as pd
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
 # -----------------------------------
-# 1. Load the real meme dataset
+# 1. Define paths
 # -----------------------------------
 
-data = pd.read_csv("dataset/memes_real.csv")
+DATASET_FILE = "dataset/memes_real.csv"
+EMBEDDINGS_FILE = "dataset/meme_embeddings.npy"
 
 
 # -----------------------------------
-# 2. Load the AI model
+# 2. Load the meme dataset
 # -----------------------------------
+
+data = pd.read_csv(DATASET_FILE)
+
+print("\nMeme dataset loaded!")
+print(f"Total memes: {len(data)}")
+
+
+# -----------------------------------
+# 3. Load the AI model
+# -----------------------------------
+
+print("\nLoading AI model...")
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 # -----------------------------------
-# 3. Get meme captions
+# 4. Load saved meme embeddings
 # -----------------------------------
 
-captions = data["caption"].tolist()
+print("Loading saved meme embeddings...")
 
+meme_embeddings = np.load(EMBEDDINGS_FILE)
 
-# -----------------------------------
-# 4. Convert all meme captions
-#    into embeddings
-# -----------------------------------
-
-print("\nCreating meme embeddings...")
-
-meme_embeddings = model.encode(
-    captions,
-    show_progress_bar=True
-)
+print(f"Embeddings loaded: {meme_embeddings.shape}")
 
 
 # -----------------------------------
@@ -69,7 +74,7 @@ data["similarity"] = similarities
 
 
 # -----------------------------------
-# 9. Sort by similarity
+# 9. Sort results
 # -----------------------------------
 
 results = data.sort_values(
