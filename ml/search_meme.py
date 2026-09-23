@@ -13,7 +13,7 @@ EMBEDDINGS_FILE = "dataset/meme_embeddings.npy"
 
 
 # -----------------------------------
-# 2. Load the meme dataset
+# 2. Load dataset
 # -----------------------------------
 
 data = pd.read_csv(DATASET_FILE)
@@ -23,7 +23,7 @@ print(f"Total memes: {len(data)}")
 
 
 # -----------------------------------
-# 3. Load the AI model
+# 3. Load AI model
 # -----------------------------------
 
 print("\nLoading AI model...")
@@ -32,7 +32,7 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 # -----------------------------------
-# 4. Load saved meme embeddings
+# 4. Load saved embeddings
 # -----------------------------------
 
 print("Loading saved meme embeddings...")
@@ -43,21 +43,33 @@ print(f"Embeddings loaded: {meme_embeddings.shape}")
 
 
 # -----------------------------------
-# 5. Get query from user
+# 5. Validate dataset and embeddings
 # -----------------------------------
 
-query = input("\nEnter what you want a meme about: ")
+if len(data) != len(meme_embeddings):
+    raise ValueError(
+        "Dataset and embedding count do not match."
+    )
 
 
 # -----------------------------------
-# 6. Convert query into embedding
+# 6. Get user query
+# -----------------------------------
+
+query = input(
+    "\nEnter what you want a meme about: "
+)
+
+
+# -----------------------------------
+# 7. Convert query into embedding
 # -----------------------------------
 
 query_embedding = model.encode([query])
 
 
 # -----------------------------------
-# 7. Calculate similarity
+# 8. Calculate similarity
 # -----------------------------------
 
 similarities = cosine_similarity(
@@ -67,14 +79,14 @@ similarities = cosine_similarity(
 
 
 # -----------------------------------
-# 8. Add similarity scores
+# 9. Add similarity scores
 # -----------------------------------
 
 data["similarity"] = similarities
 
 
 # -----------------------------------
-# 9. Sort results
+# 10. Sort results
 # -----------------------------------
 
 results = data.sort_values(
@@ -84,16 +96,17 @@ results = data.sort_values(
 
 
 # -----------------------------------
-# 10. Display top results
+# 11. Display top 5 results
 # -----------------------------------
 
-print("\n" + "=" * 60)
-print("                    MEME AI")
-print("=" * 60)
+print("\n" + "=" * 70)
+print("                         MEME AI")
+print("=" * 70)
 
 print(f"\nQuery: {query}")
 
 print("\nTop Matching Memes:\n")
+
 
 for index, (_, row) in enumerate(
     results.head(5).iterrows(),
@@ -101,8 +114,17 @@ for index, (_, row) in enumerate(
 ):
 
     print(f"{index}. Image: {row['image']}")
-    print(f"   Caption: {row['caption']}")
-    print(f"   Sentiment: {row['sentiment']}")
-    print(f"   Similarity: {row['similarity']:.3f}")
 
-    print("-" * 60)
+    print(
+        f"   Caption: {row['caption']}"
+    )
+
+    print(
+        f"   Sentiment: {row['sentiment']}"
+    )
+
+    print(
+        f"   Similarity: {row['similarity']:.3f}"
+    )
+
+    print("-" * 70)

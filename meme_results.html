@@ -1,0 +1,241 @@
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>MemeAI Results</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: Arial, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .query {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(280px, 1fr)
+            );
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .card img {
+            width: 100%;
+            height: 300px;
+            object-fit: contain;
+            background: #e2e8f0;
+        }
+
+        .content {
+            padding: 18px;
+        }
+
+        .rank {
+            position: absolute;
+            margin: 12px;
+            background: #1e293b;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .similarity {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        p {
+            line-height: 1.5;
+        }
+
+        span {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🧠 MemeAI</h1>
+
+    <div class="query">
+        Search: "exam tomorrow and I haven't studied"
+    </div>
+
+    <div class="results">
+
+        
+    <div class="card">
+
+        <div class="rank">
+            #1
+        </div>
+
+        <img src="images/images/image_1762.jpeg" alt="Meme">
+
+        <div class="content">
+
+            <div class="similarity">
+                Similarity: 0.584
+            </div>
+
+            <p>
+                me brushing over a boring topic sky atlantic me in the exam first question of the exam
+            </p>
+
+            <span>
+                Sentiment: negative
+            </span>
+
+        </div>
+
+    </div>
+    
+    <div class="card">
+
+        <div class="rank">
+            #2
+        </div>
+
+        <img src="images/images/image_4627.jpg" alt="Meme">
+
+        <div class="content">
+
+            <div class="similarity">
+                Similarity: 0.548
+            </div>
+
+            <p>
+                School Days Exam Days
+            </p>
+
+            <span>
+                Sentiment: neutral
+            </span>
+
+        </div>
+
+    </div>
+    
+    <div class="card">
+
+        <div class="rank">
+            #3
+        </div>
+
+        <img src="images/images/image_1272.jpg" alt="Meme">
+
+        <div class="content">
+
+            <div class="similarity">
+                Similarity: 0.522
+            </div>
+
+            <p>
+                STUDYING FOR A TEST VS. THE FIRST QUESTION imgflip.com
+            </p>
+
+            <span>
+                Sentiment: positive
+            </span>
+
+        </div>
+
+    </div>
+    
+    <div class="card">
+
+        <div class="rank">
+            #4
+        </div>
+
+        <img src="images/images/image_3944.jpg" alt="Meme">
+
+        <div class="content">
+
+            <div class="similarity">
+                Similarity: 0.521
+            </div>
+
+            <p>
+                STUDY FOR 0.1 SECOND GET 99.9% IN THE EXAM
+            </p>
+
+            <span>
+                Sentiment: very_positive
+            </span>
+
+        </div>
+
+    </div>
+    
+    <div class="card">
+
+        <div class="rank">
+            #5
+        </div>
+
+        <img src="images/images/image_1632.png" alt="Meme">
+
+        <div class="content">
+
+            <div class="similarity">
+                Similarity: 0.508
+            </div>
+
+            <p>
+                WHEN YOU COME HOME AFTER TAKING THE EXAM AND YOU KNOW YOU FUCKED IT UP BADLY The Godfather-Exam
+            </p>
+
+            <span>
+                Sentiment: neutral
+            </span>
+
+        </div>
+
+    </div>
+    
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

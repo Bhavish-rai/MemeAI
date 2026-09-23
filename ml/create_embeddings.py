@@ -22,7 +22,18 @@ print(f"Total memes: {len(data)}")
 
 
 # -----------------------------------
-# 3. Load AI model
+# 3. Check required column
+# -----------------------------------
+
+if "search_text" not in data.columns:
+    raise ValueError(
+        "search_text column not found. "
+        "Run ml/prepare_dataset.py first."
+    )
+
+
+# -----------------------------------
+# 4. Load AI model
 # -----------------------------------
 
 print("\nLoading AI model...")
@@ -31,26 +42,30 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 # -----------------------------------
-# 4. Get meme captions
+# 5. Get searchable meme text
 # -----------------------------------
 
-captions = data["caption"].fillna("").tolist()
+search_text = (
+    data["search_text"]
+    .fillna("")
+    .tolist()
+)
 
 
 # -----------------------------------
-# 5. Generate embeddings
+# 6. Generate embeddings
 # -----------------------------------
 
 print("\nCreating meme embeddings...")
 
 embeddings = model.encode(
-    captions,
+    search_text,
     show_progress_bar=True
 )
 
 
 # -----------------------------------
-# 6. Save embeddings
+# 7. Save embeddings
 # -----------------------------------
 
 np.save(
@@ -60,13 +75,13 @@ np.save(
 
 
 # -----------------------------------
-# 7. Display information
+# 8. Display results
 # -----------------------------------
 
 print("\n" + "=" * 60)
 print("EMBEDDINGS CREATED SUCCESSFULLY")
 print("=" * 60)
 
-print(f"\nNumber of memes: {len(captions)}")
+print(f"\nNumber of memes: {len(search_text)}")
 print(f"Embedding shape: {embeddings.shape}")
 print(f"Saved to: {EMBEDDINGS_FILE}")
