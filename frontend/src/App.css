@@ -1,0 +1,424 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+/* Navbar */
+
+.navbar {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7%;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.nav-text {
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Main */
+
+.main-content {
+  width: 86%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+}
+
+/* Hero */
+
+.hero {
+  text-align: center;
+  padding: 85px 20px 55px;
+}
+
+.eyebrow {
+  margin: 0 0 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #64748b;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 52px;
+  line-height: 1.08;
+  letter-spacing: -2px;
+}
+
+.description {
+  max-width: 620px;
+  margin: 24px auto 32px;
+  color: #64748b;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+/* Search */
+
+.search-box {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 0;
+  padding: 15px 16px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1e293b;
+}
+
+.search-box input::placeholder {
+  color: #94a3b8;
+}
+
+.search-box button {
+  padding: 0 24px;
+  border: none;
+  border-radius: 8px;
+  background: #1e293b;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.search-box button:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.search-box button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Examples */
+
+.examples {
+  max-width: 720px;
+  margin: 14px auto 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.examples span {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.examples button {
+  padding: 7px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.examples button:hover {
+  border-color: #94a3b8;
+  color: #1e293b;
+  background: #f8fafc;
+}
+
+/* Results */
+
+.results-section {
+  margin-top: 20px;
+}
+
+.results-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.results-header h2 {
+  margin: 4px 0 0;
+  font-size: 24px;
+}
+
+.results-header > span {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.results-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #94a3b8;
+}
+
+/* Meme grid */
+
+.meme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.meme-card {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.meme-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.image-container {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Meme information */
+
+.meme-info {
+  padding: 18px;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.rank {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.match {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.caption {
+  min-height: 48px;
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* Loading */
+
+.loading-state {
+  padding: 70px 20px;
+  text-align: center;
+  color: #64748b;
+}
+
+.loading-state p {
+  margin: 14px 0 0;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
+  border: 3px solid #e2e8f0;
+  border-top-color: #64748b;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error */
+
+.error {
+  max-width: 720px;
+  margin: 0 auto 30px;
+  padding: 14px 18px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Empty state */
+
+.empty-state {
+  margin: 20px auto;
+  padding: 70px 20px;
+  text-align: center;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+}
+
+.empty-icon {
+  margin-bottom: 15px;
+  font-size: 28px;
+  color: #64748b;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.empty-state p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+  .meme-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero h1 {
+    font-size: 42px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .navbar {
+    padding: 0 5%;
+  }
+
+  .nav-text {
+    display: none;
+  }
+
+  .main-content {
+    width: 92%;
+  }
+
+  .hero {
+    padding-top: 55px;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+    letter-spacing: -1.2px;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+
+  .search-box {
+    flex-direction: column;
+    gap: 6px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .search-box input {
+    padding: 15px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+  }
+
+  .search-box button {
+    min-height: 48px;
+  }
+
+  .examples {
+    margin-top: 16px;
+  }
+
+  .meme-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .results-header {
+    align-items: center;
+  }
+}
