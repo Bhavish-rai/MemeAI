@@ -14,6 +14,7 @@ const examples = [
 function App() {
   const [query, setQuery] = useState("");
   const [memes, setMemes] = useState([]);
+  const [selectedMeme, setSelectedMeme] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -25,6 +26,7 @@ function App() {
     try {
       setLoading(true);
       setError("");
+      setSelectedMeme(null);
 
       const response = await axios.get(
         `${API_URL}/api/search`,
@@ -52,6 +54,10 @@ function App() {
   const selectExample = (example) => {
     setQuery(example);
     setError("");
+  };
+
+  const closePreview = () => {
+    setSelectedMeme(null);
   };
 
   return (
@@ -151,6 +157,7 @@ function App() {
                 <article
                   className="meme-card"
                   key={`${meme.image}-${index}`}
+                  onClick={() => setSelectedMeme(meme)}
                 >
                   <div className="image-container">
                     <img
@@ -210,6 +217,59 @@ function App() {
             </section>
           )}
       </main>
+
+      {selectedMeme && (
+        <div
+          className="modal-overlay"
+          onClick={closePreview}
+        >
+          <div
+            className="modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="close-button"
+              onClick={closePreview}
+              aria-label="Close preview"
+            >
+              ×
+            </button>
+
+            <div className="modal-image">
+              <img
+                src={`${API_URL}${selectedMeme.image_url}`}
+                alt={selectedMeme.caption || "Meme"}
+              />
+            </div>
+
+            <div className="modal-info">
+              <div className="modal-top">
+                <span>
+                  Meme Match
+                </span>
+
+                <strong>
+                  {(selectedMeme.similarity * 100).toFixed(1)}%
+                </strong>
+              </div>
+
+              <p className="modal-caption">
+                {selectedMeme.caption}
+              </p>
+
+              <div className="modal-meta">
+                <span>
+                  Sentiment: {selectedMeme.sentiment}
+                </span>
+
+                <span>
+                  {selectedMeme.image}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
