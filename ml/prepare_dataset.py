@@ -2,116 +2,162 @@ import os
 import pandas as pd
 
 
-# -----------------------------------
-# 1. Define paths
-# -----------------------------------
-
 LABELS_FILE = "labels.csv"
 IMAGE_FOLDER = "images/images"
 OUTPUT_FILE = "dataset/memes_real.csv"
 
 
-# -----------------------------------
-# 2. Load original labels
-# -----------------------------------
+print("\n" + "=" * 70)
+print("                  MEMEAI DATASET PREPARATION")
+print("=" * 70)
+
+
+# --------------------------------------------------
+# 1. Load original dataset
+# --------------------------------------------------
+
+print("\nLoading labels.csv...")
 
 data = pd.read_csv(LABELS_FILE)
 
-print("\nOriginal dataset:")
-print(f"Rows: {len(data)}")
+print(f"Original rows: {len(data)}")
 print(f"Columns: {list(data.columns)}")
 
 
-# -----------------------------------
-# 3. Keep required columns
-# -----------------------------------
+# --------------------------------------------------
+# 2. Select required columns
+# --------------------------------------------------
 
-data = data[
-    [
-        "image_name",
-        "text_ocr",
-        "text_corrected",
-        "overall_sentiment"
-    ]
-].copy()
+required_columns = [
+    "image_name",
+    "text_ocr",
+    "text_corrected",
+    "overall_sentiment"
+]
+
+missing_columns = [
+    column
+    for column in required_columns
+    if column not in data.columns
+]
+
+if missing_columns:
+    raise ValueError(
+        f"Missing columns: {missing_columns}"
+    )
 
 
-# -----------------------------------
-# 4. Handle missing values
-# -----------------------------------
-
-data["text_ocr"] = data["text_ocr"].fillna("")
-data["text_corrected"] = data["text_corrected"].fillna("")
-data["overall_sentiment"] = data["overall_sentiment"].fillna("unknown")
+data = data[required_columns].copy()
 
 
-# -----------------------------------
-# 5. Remove rows without text
-# -----------------------------------
+# --------------------------------------------------
+# 3. Clean missing values
+# --------------------------------------------------
+
+data["text_ocr"] = (
+    data["text_ocr"]
+    .fillna("")
+    .astype(str)
+)
+
+data["text_corrected"] = (
+    data["text_corrected"]
+    .fillna("")
+    .astype(str)
+)
+
+data["overall_sentiment"] = (
+    data["overall_sentiment"]
+    .fillna("unknown")
+    .astype(str)
+)
+
+
+# --------------------------------------------------
+# 4. Remove memes without text
+# --------------------------------------------------
 
 data = data[
     data["text_corrected"].str.strip() != ""
 ].copy()
 
 
-# -----------------------------------
-# 6. Check whether images exist
-# -----------------------------------
+# --------------------------------------------------
+# 5. Create image paths
+# --------------------------------------------------
 
 data["image_path"] = data["image_name"].apply(
-    lambda name: os.path.join(IMAGE_FOLDER, name)
+    lambda name: os.path.join(
+        IMAGE_FOLDER,
+        name
+    )
 )
+
 
 data["image_exists"] = data["image_path"].apply(
     os.path.exists
 )
 
 
-missing_images = (~data["image_exists"]).sum()
+missing_images = (
+    ~data["image_exists"]
+).sum()
 
-print(f"\nMissing images: {missing_images}")
+
+print(
+    f"\nMissing images: "
+    f"{missing_images}"
+)
 
 
-# -----------------------------------
-# 7. Remove missing images
-# -----------------------------------
+# Remove missing images
 
 data = data[
     data["image_exists"]
 ].copy()
 
 
-# -----------------------------------
-# 8. Create searchable text
-# -----------------------------------
+# --------------------------------------------------
+# 6. Create structured search text
+# --------------------------------------------------
 
 data["search_text"] = (
-    "Meme text: "
-    + data["text_corrected"]
-    + ". OCR text: "
-    + data["text_ocr"]
+    "Caption: "
+    + data["text_corrected"].str.strip()
+    + ". OCR: "
+    + data["text_ocr"].str.strip()
     + ". Sentiment: "
-    + data["overall_sentiment"]
+    + data["overall_sentiment"].str.strip()
 )
 
 
-# -----------------------------------
-# 9. Create clean dataset
-# -----------------------------------
+# --------------------------------------------------
+# 7. Create final dataset
+# --------------------------------------------------
 
 clean_data = pd.DataFrame({
-    "id": range(1, len(data) + 1),
+
+    "id": range(
+        1,
+        len(data) + 1
+    ),
+
     "image": data["image_name"],
+
     "caption": data["text_corrected"],
+
     "ocr_text": data["text_ocr"],
+
     "sentiment": data["overall_sentiment"],
+
     "search_text": data["search_text"]
+
 })
 
 
-# -----------------------------------
-# 10. Save dataset
-# -----------------------------------
+# --------------------------------------------------
+# 8. Save dataset
+# --------------------------------------------------
 
 clean_data.to_csv(
     OUTPUT_FILE,
@@ -119,23 +165,34 @@ clean_data.to_csv(
 )
 
 
-# -----------------------------------
-# 11. Display results
-# -----------------------------------
+# --------------------------------------------------
+# 9. Display summary
+# --------------------------------------------------
 
-print("\nClean dataset created successfully!")
+print("\n" + "=" * 70)
+print("                  DATASET READY")
+print("=" * 70)
 
-print(f"Total memes: {len(clean_data)}")
-print(f"Saved to: {OUTPUT_FILE}")
-
-print("\nFirst 5 rows:")
 print(
-    clean_data[
-        [
-            "id",
-            "image",
-            "caption",
-            "sentiment"
-        ]
-    ].head()
+    f"\nTotal memes: "
+    f"{len(clean_data)}"
 )
+
+print(
+    f"Saved to: "
+    f"{OUTPUT_FILE}"
+)
+
+print("\nColumns:")
+
+for column in clean_data.columns:
+    print(f"- {column}")
+
+
+print("\nSample search representation:")
+
+print(
+    clean_data.iloc[0]["search_text"]
+)
+
+print("\n" + "=" * 70)

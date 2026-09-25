@@ -1,30 +1,26 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
 import os
-import sys
 import numpy as np
 import pandas as pd
+import torch
+import torch.nn.functional as F
 
+from PIL import Image
+from io import BytesIO
 
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from transformers import CLIPProcessor, CLIPModel
 
-
-# -----------------------------------
-# 1. Create FastAPI application
-# -----------------------------------
 
 app = FastAPI(
     title="MemeAI API",
-    description="AI-powered semantic meme search API",
+    description="AI-powered semantic and image meme search API",
     version="1.0.0"
 )
-
-
-# -----------------------------------
-# 2. Enable CORS
-# -----------------------------------
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,9 +31,9 @@ app.add_middleware(
 )
 
 
-# -----------------------------------
-# 3. Define project paths
-# -----------------------------------
+# ============================================================
+# PATHS
+# ============================================================
 
 BASE_DIR = os.path.dirname(
     os.path.dirname(
@@ -51,10 +47,16 @@ DATASET_FILE = os.path.join(
     "memes_real.csv"
 )
 
-EMBEDDINGS_FILE = os.path.join(
+TEXT_EMBEDDINGS_FILE = os.path.join(
     BASE_DIR,
     "dataset",
     "meme_embeddings.npy"
+)
+
+IMAGE_EMBEDDINGS_FILE = os.path.join(
+    BASE_DIR,
+    "dataset",
+    "image_embeddings.npy"
 )
 
 IMAGE_FOLDER = os.path.join(
@@ -62,6 +64,12 @@ IMAGE_FOLDER = os.path.join(
     "images",
     "images"
 )
+
+
+# ============================================================
+# SERVE IMAGES
+# ============================================================
+
 app.mount(
     "/images",
     StaticFiles(directory=IMAGE_FOLDER),
@@ -69,65 +77,95 @@ app.mount(
 )
 
 
-# -----------------------------------
-# 4. Load dataset
-# -----------------------------------
+# ============================================================
+# LOAD DATA
+# ============================================================
 
 print("\nLoading meme dataset...")
 
-data = pd.read_csv(
-    DATASET_FILE
-)
+data = pd.read_csv(DATASET_FILE)
 
 print(
     f"Loaded {len(data)} memes"
 )
 
 
-# -----------------------------------
-# 5. Load embeddings
-# -----------------------------------
+# ============================================================
+# LOAD TEXT EMBEDDINGS
+# ============================================================
 
-print("\nLoading meme embeddings...")
+print("\nLoading text embeddings...")
 
-meme_embeddings = np.load(
-    EMBEDDINGS_FILE
+text_embeddings = np.load(
+    TEXT_EMBEDDINGS_FILE
 )
 
 print(
-    f"Loaded embeddings: "
-    f"{meme_embeddings.shape}"
+    f"Text embeddings: "
+    f"{text_embeddings.shape}"
 )
 
 
-# -----------------------------------
-# 6. Validate data
-# -----------------------------------
+# ============================================================
+# LOAD IMAGE EMBEDDINGS
+# ============================================================
 
-if len(data) != len(meme_embeddings):
+print("\nLoading image embeddings...")
 
-    raise ValueError(
-        "Dataset and embeddings "
-        "have different numbers of rows."
-    )
+image_embeddings = np.load(
+    IMAGE_EMBEDDINGS_FILE
+)
+
+print(
+    f"Image embeddings: "
+    f"{image_embeddings.shape}"
+)
 
 
-# -----------------------------------
-# 7. Load AI model
-# -----------------------------------
+# ============================================================
+# LOAD TEXT MODEL
+# ============================================================
 
-print("\nLoading AI model...")
+print("\nLoading text AI model...")
 
-model = SentenceTransformer(
+text_model = SentenceTransformer(
     "all-MiniLM-L6-v2"
 )
 
-print("AI model loaded successfully!")
+print("Text model loaded!")
 
 
-# -----------------------------------
-# 8. Root endpoint
-# -----------------------------------
+# ============================================================
+# LOAD CLIP
+# ============================================================
+
+print("\nLoading CLIP model...")
+
+device = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "cpu"
+)
+
+clip_model = CLIPModel.from_pretrained(
+    "openai/clip-vit-base-patch32"
+)
+
+clip_processor = CLIPProcessor.from_pretrained(
+    "openai/clip-vit-base-patch32"
+)
+
+clip_model.to(device)
+clip_model.eval()
+
+print(
+    f"CLIP loaded on {device}!"
+)
+
+
+# ============================================================
+# ROOT
+# ============================================================
 
 @app.get("/")
 def root():
@@ -138,9 +176,9 @@ def root():
     }
 
 
-# -----------------------------------
-# 9. Health endpoint
-# -----------------------------------
+# ============================================================
+# HEALTH
+# ============================================================
 
 @app.get("/health")
 def health():
@@ -148,20 +186,22 @@ def health():
     return {
         "status": "healthy",
         "memes": len(data),
-        "embedding_dimensions": meme_embeddings.shape[1]
+        "text_embedding_dimensions":
+            text_embeddings.shape[1],
+        "image_embedding_dimensions":
+            image_embeddings.shape[1]
     }
 
 
-# -----------------------------------
-# 10. Search endpoint
-# -----------------------------------
+# ============================================================
+# TEXT SEARCH
+# ============================================================
 
 @app.get("/api/search")
 def search_memes(
     query: str = Query(
         ...,
-        min_length=1,
-        description="Text describing the meme"
+        min_length=1
     ),
     limit: int = Query(
         5,
@@ -170,37 +210,18 @@ def search_memes(
     )
 ):
 
-    # -----------------------------------
-    # Create query embedding
-    # -----------------------------------
-
-    query_embedding = model.encode(
+    query_embedding = text_model.encode(
         [query]
     )
 
-
-    # -----------------------------------
-    # Calculate similarity
-    # -----------------------------------
-
     similarities = cosine_similarity(
         query_embedding,
-        meme_embeddings
+        text_embeddings
     )[0]
-
-
-    # -----------------------------------
-    # Get top results
-    # -----------------------------------
 
     top_indices = np.argsort(
         similarities
     )[::-1][:limit]
-
-
-    # -----------------------------------
-    # Build response
-    # -----------------------------------
 
     results = []
 
@@ -210,26 +231,160 @@ def search_memes(
 
         image_name = row["image"]
 
-        image_path = os.path.join(
-            IMAGE_FOLDER,
-            image_name
-        )
-
         results.append({
-    "image": image_name,
-    "image_url": f"/images/{image_name}",
-    "caption": row["caption"],
-    "sentiment": row["sentiment"],
-    "similarity": round(
-        float(similarities[index]),
-        4
-    ),
-    "image_exists": os.path.exists(image_path)
-})
 
+            "image": image_name,
+
+            "image_url":
+                f"/images/{image_name}",
+
+            "caption":
+                row["caption"],
+
+            "sentiment":
+                row["sentiment"],
+
+            "similarity":
+                round(
+                    float(similarities[index]),
+                    4
+                )
+        })
 
     return {
         "query": query,
+        "count": len(results),
+        "results": results
+    }
+
+
+# ============================================================
+# IMAGE SEARCH
+# ============================================================
+
+@app.post("/api/image-search")
+async def image_search(
+    file: UploadFile = File(...),
+    limit: int = Query(
+        5,
+        ge=1,
+        le=20
+    )
+):
+
+    contents = await file.read()
+
+    try:
+
+        image = Image.open(
+            BytesIO(contents)
+        ).convert("RGB")
+
+    except Exception:
+
+        return {
+            "error": "Invalid image file."
+        }
+
+
+    # --------------------------------------------------------
+    # Process image
+    # --------------------------------------------------------
+
+    inputs = clip_processor(
+        images=image,
+        return_tensors="pt"
+    )
+
+    pixel_values = inputs[
+        "pixel_values"
+    ].to(device)
+
+
+    # --------------------------------------------------------
+    # CLIP image embedding
+    # --------------------------------------------------------
+
+    with torch.no_grad():
+
+        vision_outputs = clip_model.vision_model(
+            pixel_values=pixel_values
+        )
+
+        pooled_output = (
+            vision_outputs.pooler_output
+        )
+
+        image_features = (
+            clip_model.visual_projection(
+                pooled_output
+            )
+        )
+
+        image_features = F.normalize(
+            image_features,
+            p=2,
+            dim=-1
+        )
+
+
+    query_embedding = (
+        image_features
+        .cpu()
+        .numpy()
+    )
+
+
+    # --------------------------------------------------------
+    # Similarity
+    # --------------------------------------------------------
+
+    similarities = cosine_similarity(
+        query_embedding,
+        image_embeddings
+    )[0]
+
+
+    top_indices = np.argsort(
+        similarities
+    )[::-1][:limit]
+
+
+    # --------------------------------------------------------
+    # Results
+    # --------------------------------------------------------
+
+    results = []
+
+    for index in top_indices:
+
+        row = data.iloc[index]
+
+        image_name = row["image"]
+
+        results.append({
+
+            "image": image_name,
+
+            "image_url":
+                f"/images/{image_name}",
+
+            "caption":
+                row["caption"],
+
+            "sentiment":
+                row["sentiment"],
+
+            "similarity":
+                round(
+                    float(similarities[index]),
+                    4
+                )
+        })
+
+
+    return {
+        "filename": file.filename,
         "count": len(results),
         "results": results
     }
